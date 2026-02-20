@@ -1,21 +1,49 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background--darker: hsl(0, 0, 80);
+  --background-dark: hsl(0, 0, 85);
+  --background: hsl(0, 0, 90);
+  --background-light: hsl(0, 0, 95);
+  --background-lighter: hsl(0, 0, 100);
+
+  --foreground-darker: hsl(0, 0, 0);
+  --foreground-dark: hsl(0, 0, 5);
+  --foreground: hsl(0, 0, 10);
+  --foreground-light: hsl(0, 0, 15);
+  --foreground-lighter: hsl(0, 0, 20);
 }
 
 @theme inline {
+  --color-background-darker: var(--background-darker);
+  --color-background-dark: var(--background-dark);
   --color-background: var(--background);
+  --color-background-light: var(--background-light);
+  --color-background-lighter: var(--background-lighter);
+
+  --color-foreground-darker: var(--foreground-darker);
+  --color-foreground-dark: var(--foreground-dark);
   --color-foreground: var(--foreground);
+  --color-foreground-light: var(--foreground-light);
+  --color-foreground-lighter: var(--foreground-lighter);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground-darker: hsl(0, 0, 80);
+    --foreground-dark: hsl(0, 0, 85);
+    --foreground: hsl(0, 0, 90);
+    --foreground-light: hsl(0, 0, 95);
+    --foreground-lighter: hsl(0, 0, 100);
+
+    --background-darker: hsl(0, 0, 0);
+    --background-dark: hsl(0, 0, 5);
+    --background: hsl(0, 0, 10);
+    --background-light: hsl(0, 0, 15);
+    --background-lighter: hsl(0, 0, 20);
   }
 }
 
