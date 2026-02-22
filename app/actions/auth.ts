@@ -1,7 +1,11 @@
 "use server";
 
-import { signOut } from "@/auth";
+import { signIn, signOut } from "@/auth";
 
 export async function handleSignOut() {
   await signOut();
+}
+
+export async function handleSignIn() {
+  await signIn("google");
 }

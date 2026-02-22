@@ -1,21 +1,24 @@
+"use server";
+
 import { auth } from "@/auth";
-import NavBar from "@/components/NavBar";
+import AppSidebar from "@/components/AppSidebar";
+import SiteHeader from "@/components/SiteHeader";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default async function HomePage() {
-  const session = await auth();
   return (
-    <>
-      <div className="bg-yellow-700 text-center">
-        Happy Chinese New Year, everyone!!!
-      </div>
-      <NavBar />
-      <main className="min-h-screen flex flex-col">
-        {session ? (
-          <h1>Welcome, {session.user?.name || "ERROR"}</h1>
-        ) : (
-          <h1>Welcome To ToDo List!!!</h1>
-        )}
-      </main>
-    </>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar />
+      <SidebarInset>
+        <SiteHeader header="Home" />
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
