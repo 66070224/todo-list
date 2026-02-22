@@ -94,6 +94,9 @@ model Task {
   category TaskCategory
   assignUserId String?
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   user User @relation("CreatedBy", fields: [userId], references: [id])
 
   assignUser User? @relation("AssignedTo", fields: [assignUserId], references: [id])

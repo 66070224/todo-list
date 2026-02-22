@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/prisma";
-import { TaskCategory, TaskStatus } from "../generated/prisma/enums";
+import { TaskCategory, TaskStatus } from "../app/generated/prisma/enums";
 
 export async function createTask(
   title: string,
@@ -10,16 +10,18 @@ export async function createTask(
   description?: string,
   assignUserId?: string,
 ) {
-  const session = await auth();
-  if (!session?.user?.id) return;
-  await prisma.task.create({
-    data: {
-      userId: session.user.id,
-      title: title,
-      description: description,
-      category: category,
-      assignUserId: assignUserId,
-    },
+  const origin = process.env.URL || "http://localhost:3000";
+  const URI = new URL("/api/tasks", origin);
+  return fetch(URI, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      title,
+      category,
+      description,
+      assignUserId,
+    }),
   });
 }
 

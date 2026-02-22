@@ -25,7 +25,7 @@ import {
   IconUserCircle,
 } from "@tabler/icons-react";
 import { Session } from "next-auth";
-import { handleSignIn, handleSignOut } from "@/app/actions/auth";
+import { handleSignIn, handleSignOut } from "@/actions/auth";
 
 export default function NavUser({ session }: { session: Session | null }) {
   const { isMobile } = useSidebar();
@@ -88,10 +88,6 @@ export default function NavUser({ session }: { session: Session | null }) {
                 <DropdownMenuItem>
                   <IconUserCircle />
                   Account
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <IconCreditCard />
-                  Billing
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <IconNotification />

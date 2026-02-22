@@ -1,30 +1,29 @@
-import { TaskCategory, TaskStatus } from "@/app/generated/prisma/enums";
+"use server";
+
+import { TaskCategory } from "@/app/generated/prisma/enums";
 import { auth } from "@/auth";
 import { prisma } from "@/prisma";
-import { NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const searchParams = req.nextUrl.searchParams;
-  const title = searchParams.get("title");
-  const categories = searchParams.get("categories");
-  const statuses = searchParams.get("status");
-
+  console.log("GET tasks");
   const session = await auth();
-  if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
+  console.log(session?.user?.id);
+  if (!session?.user?.id)
+    return NextResponse.json({ message: "Missing user's id" }, { status: 401 });
   const tasks = await prisma.task.findMany({
     where: {
-      title: {
-        contains: title ?? undefined,
-      },
-      category: {
-        in: categories ? (categories.split(",") as TaskCategory[]) : undefined,
-      },
-      status: {
-        in: statuses ? (statuses.split(",") as TaskStatus[]) : undefined,
+      userId: session.user.id,
+    },
+    include: {
+      assignUser: {
+        select: {
+          name: true,
+        },
       },
     },
   });
-  return Response.json(tasks);
+  return NextResponse.json({ message: "Done", tasks }, { status: 200 });
 }
 
 export async function POST(req: NextRequest) {
@@ -35,8 +34,9 @@ export async function POST(req: NextRequest) {
     assignUserId?: string;
   } = await req.json();
   const session = await auth();
-  if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
-  await prisma.task.create({
+  if (!session?.user?.id)
+    return NextResponse.json({ message: "Missing user's id" }, { status: 401 });
+  const task = await prisma.task.create({
     data: {
       userId: session.user.id,
       title: data.title,
@@ -45,5 +45,6 @@ export async function POST(req: NextRequest) {
       assignUserId: data.assignUserId,
     },
   });
-  return new Response("Done");
+
+  return NextResponse.json({ message: "Done", task }, { status: 200 });
 }

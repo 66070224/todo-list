@@ -1,4 +1,4 @@
-import { handleSignOut } from "@/app/actions/auth";
+import { handleSignOut } from "@/actions/auth";
 
 export default function SignOutButton() {
   return (

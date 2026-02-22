@@ -8,6 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar";
+import Link from "next/link";
 
 export default function NavMain() {
   return (
@@ -21,9 +22,11 @@ export default function NavMain() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem className="flex items-center gap-2">
-            <SidebarMenuButton tooltip="Tasks">
-              <IconSubtask />
-              <span>Tasks</span>
+            <SidebarMenuButton asChild tooltip="Tasks">
+              <Link href="/tasks">
+                <IconSubtask />
+                <span>Tasks</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
