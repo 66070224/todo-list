@@ -133,6 +133,7 @@ function TableCellViewer({
   const isMobile = useIsMobile();
 
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [users, setUsers] = useState<User[]>([]);
 
@@ -142,11 +143,13 @@ function TableCellViewer({
   const [assignUserEmail, setAssignUserEmail] = useState(
     item.assignUser?.email || "",
   );
+  const [status, setStatus] = useState(item.status);
 
   const [error, setError] = useState("");
 
   async function submitHandle() {
     setError("");
+    setIsLoading(true);
     if (!category) return setError("Please choose category");
     const origin = process.env.URL || "http://localhost:3000";
     const URI = new URL(`/api/tasks/${item.id}`, origin);
@@ -159,6 +162,7 @@ function TableCellViewer({
         category,
         description,
         assignUserEmail,
+        status,
       }),
     });
     const data = await response.json();
@@ -168,6 +172,7 @@ function TableCellViewer({
     } else {
       setError(data.message);
     }
+    setIsLoading(false);
   }
 
   async function deleteHandle() {
@@ -224,9 +229,15 @@ function TableCellViewer({
               <AlertTitle>{error}</AlertTitle>
             </Alert>
           )}
-          <Button variant={"destructive"} onClick={deleteHandle}>
-            Deleted
-          </Button>
+          <div>
+            <Button
+              variant={"destructive"}
+              onClick={deleteHandle}
+              disabled={isLoading}
+            >
+              Deleted
+            </Button>
+          </div>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
           <form className="flex flex-col gap-4">
@@ -238,6 +249,7 @@ function TableCellViewer({
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                disabled={!edit}
               />
             </div>
             <div className="flex flex-col gap-3">
@@ -246,6 +258,7 @@ function TableCellViewer({
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                disabled={!edit}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -256,6 +269,7 @@ function TableCellViewer({
                 <Select
                   defaultValue={item.category}
                   onValueChange={(value) => setCategory(value as TaskCategory)}
+                  disabled={!edit}
                 >
                   <SelectTrigger id="category" className="w-full">
                     <SelectValue placeholder="Select a category" />
@@ -284,6 +298,7 @@ function TableCellViewer({
                     setAssignUserEmail(value || "");
                   }}
                   defaultValue={item.assignUser?.email}
+                  disabled={!edit}
                 >
                   <ComboboxInput placeholder="Select a user" showClear />
                   <ComboboxContent>
@@ -299,10 +314,35 @@ function TableCellViewer({
                 </Combobox>
               </div>
             </div>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="status">
+                Status <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                defaultValue={item.status}
+                onValueChange={(value) => setStatus(value as TaskStatus)}
+              >
+                <SelectTrigger id="status" className="w-full">
+                  <SelectValue placeholder="Select a status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={TaskStatus.PENDING}>Pending</SelectItem>
+                  <SelectItem value={TaskStatus.PROGRESS}>
+                    In progress
+                  </SelectItem>
+                  <SelectItem value={TaskStatus.COMPLETED}>
+                    Completed
+                  </SelectItem>
+                  <SelectItem value={TaskStatus.BREAK}>Study</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </form>
         </div>
         <DrawerFooter>
-          <Button onClick={submitHandle}>Save</Button>
+          <Button onClick={submitHandle} disabled={isLoading} asChild>
+            <div>{isLoading && <IconLoader />} save</div>
+          </Button>
           <DrawerClose asChild>
             <Button variant="outline">Done</Button>
           </DrawerClose>
@@ -320,6 +360,7 @@ function AddTaskViewer({
   const isMobile = useIsMobile();
 
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [users, setUsers] = useState<User[]>([]);
 
@@ -332,6 +373,7 @@ function AddTaskViewer({
 
   async function submitHandle() {
     setError("");
+    setIsLoading(true);
     if (!title.trim()) return setError("Please fill title field");
     if (!category) return setError("Please select category");
     const response = await fetch("/api/tasks", {
@@ -356,6 +398,7 @@ function AddTaskViewer({
     } else {
       setError(data.message);
     }
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -466,7 +509,12 @@ function AddTaskViewer({
           </div>
         </div>
         <DrawerFooter>
-          <Button onClick={submitHandle}>Submit</Button>
+          <Button onClick={submitHandle} disabled={isLoading} asChild>
+            <div>
+              {isLoading && <IconLoader />}
+              Submit
+            </div>
+          </Button>
           <DrawerClose asChild>
             <Button variant={"outline"}>Close</Button>
           </DrawerClose>
@@ -579,7 +627,7 @@ export function TasksTable({
                 previous.filter((task) => task.id !== deleteTask.id),
               );
             }}
-            edit={true}
+            edit={row.original.userId === userId}
           />
         );
       },
@@ -1259,10 +1307,12 @@ export function TasksTable({
                 </div>
               </div>
             </div>
-          </TabsContent>{" "}
+          </TabsContent>
         </>
       ) : (
-        <IconLoader />
+        <div className="h-full w-full flex justify-center items-center">
+          <IconLoader />
+        </div>
       )}
     </Tabs>
   );
