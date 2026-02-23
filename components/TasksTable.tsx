@@ -71,7 +71,7 @@ import {
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Alert, AlertTitle } from "./ui/alert";
-import { AlertCircleIcon, ArrowUpDown } from "lucide-react";
+import { AlertCircleIcon, ArrowUpDown, ChevronDownIcon } from "lucide-react";
 import { format } from "date-fns";
 import {
   Combobox,
@@ -81,6 +81,9 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "./ui/combobox";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Calendar } from "./ui/calendar";
+import { Field, FieldGroup, FieldLabel } from "./ui/field";
 
 const dateSchema = z.preprocess((val) => {
   if (typeof val === "string" || val instanceof Date) {
@@ -117,6 +120,7 @@ export const schema = z.object({
   assignUser: assignUserSchema,
   createdAt: dateSchema,
   updatedAt: dateSchema,
+  dueDate: dateSchema.nullable(),
 });
 
 function TableCellViewer({
@@ -144,15 +148,22 @@ function TableCellViewer({
     item.assignUser?.email || "",
   );
   const [status, setStatus] = useState(item.status);
+  const [dateTime, setDateTime] = useState<Date | undefined>(() =>
+    item.dueDate ? new Date(item.dueDate) : undefined,
+  );
+  const date = dateTime;
+  const timeValue = dateTime ? format(dateTime, "HH:mm") : "10:30";
+  const [dateOpen, setDateOpen] = useState(false);
 
   const [error, setError] = useState("");
 
   async function submitHandle() {
     setError("");
-    setIsLoading(true);
+
     if (!category) return setError("Please choose category");
     const origin = process.env.URL || "http://localhost:3000";
     const URI = new URL(`/api/tasks/${item.id}`, origin);
+    setIsLoading(true);
     const response = await fetch(URI, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -163,6 +174,7 @@ function TableCellViewer({
         description,
         assignUserEmail,
         status,
+        dueDate: dateTime,
       }),
     });
     const data = await response.json();
@@ -177,6 +189,7 @@ function TableCellViewer({
 
   async function deleteHandle() {
     setError("");
+    setIsLoading(true);
     const response = await fetch(`/api/tasks/${item.id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -189,6 +202,7 @@ function TableCellViewer({
     } else {
       setError(data.message);
     }
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -337,6 +351,74 @@ function TableCellViewer({
                 </SelectContent>
               </Select>
             </div>
+            <FieldGroup className="mx-auto max-w-xs flex-row">
+              <Field>
+                <FieldLabel htmlFor="date-picker-optional">Date</FieldLabel>
+                <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      id="date-picker-optional"
+                      className="w-32 justify-between font-normal"
+                    >
+                      {dateTime ? format(dateTime, "PPP") : "Select date"}
+                      <ChevronDownIcon />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-auto overflow-hidden p-0"
+                    align="start"
+                  >
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      captionLayout="dropdown"
+                      defaultMonth={date}
+                      onSelect={(selectedDate) => {
+                        if (!selectedDate) return;
+
+                        const hours = dateTime ? dateTime.getHours() : 10;
+                        const minutes = dateTime ? dateTime.getMinutes() : 30;
+
+                        selectedDate.setHours(hours);
+                        selectedDate.setMinutes(minutes);
+
+                        setDateTime(new Date(selectedDate));
+                        setDateOpen(false);
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </Field>
+              <Field className="w-32">
+                <FieldLabel htmlFor="time-picker-optional">Time</FieldLabel>
+                <Input
+                  type="time"
+                  id="time-picker-optional"
+                  step="1"
+                  defaultValue={timeValue}
+                  className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                  onChange={(e) => {
+                    if (!dateTime) return;
+
+                    const value = e.target.value;
+                    if (!value || !value.includes(":")) return;
+
+                    const [hours, minutes] = value.split(":").map(Number);
+
+                    if (isNaN(hours) || isNaN(minutes)) return;
+
+                    const newDate = new Date(dateTime);
+
+                    newDate.setHours(hours);
+                    newDate.setMinutes(minutes);
+                    if (isNaN(newDate.getTime())) return;
+
+                    setDateTime(newDate);
+                  }}
+                />
+              </Field>
+            </FieldGroup>
           </form>
         </div>
         <DrawerFooter>
@@ -368,14 +450,17 @@ function AddTaskViewer({
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<TaskCategory | null>(null);
   const [assignUserEmail, setAssignUserEmail] = useState("");
+  const [dateTime, setDateTime] = useState<Date | undefined>(undefined);
+  const [dateOpen, setDateOpen] = useState(false);
 
   const [error, setError] = useState("");
 
   async function submitHandle() {
     setError("");
-    setIsLoading(true);
+
     if (!title.trim()) return setError("Please fill title field");
     if (!category) return setError("Please select category");
+    setIsLoading(true);
     const response = await fetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -385,6 +470,7 @@ function AddTaskViewer({
         category,
         description,
         assignUserEmail,
+        dueDate: dateTime,
       }),
     });
     const data = await response.json();
@@ -507,6 +593,69 @@ function AddTaskViewer({
               </Combobox>
             </div>
           </div>
+          <FieldGroup className="mx-auto max-w-xs flex-row">
+            <Field>
+              <FieldLabel htmlFor="date-picker-optional">Date</FieldLabel>
+              <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date-picker-optional"
+                    className="w-32 justify-between font-normal"
+                  >
+                    {dateTime ? format(dateTime, "PPP") : "Select date"}
+                    <ChevronDownIcon />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-auto overflow-hidden p-0"
+                  align="start"
+                >
+                  <Calendar
+                    mode="single"
+                    selected={dateTime}
+                    captionLayout="dropdown"
+                    defaultMonth={dateTime}
+                    onSelect={(selectedDate) => {
+                      if (!selectedDate) return;
+
+                      const hours = dateTime ? dateTime.getHours() : 10;
+                      const minutes = dateTime ? dateTime.getMinutes() : 30;
+
+                      selectedDate.setHours(hours);
+                      selectedDate.setMinutes(minutes);
+
+                      setDateTime(new Date(selectedDate));
+                      setDateOpen(false);
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </Field>
+            <Field className="w-32">
+              <FieldLabel htmlFor="time-picker-optional">Time</FieldLabel>
+              <Input
+                type="time"
+                id="time-picker-optional"
+                step="1"
+                defaultValue="10:30:00"
+                className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                onChange={(e) => {
+                  if (!dateTime) return;
+
+                  const [hours, minutes] = e.target.value
+                    .split(":")
+                    .map(Number);
+
+                  const newDate = new Date(dateTime);
+                  newDate.setHours(hours);
+                  newDate.setMinutes(minutes);
+
+                  setDateTime(newDate);
+                }}
+              />
+            </Field>
+          </FieldGroup>
         </div>
         <DrawerFooter>
           <Button onClick={submitHandle} disabled={isLoading} asChild>
@@ -709,6 +858,28 @@ export function TasksTable({
               ? "you"
               : row.original.user?.email}
           </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "dueDate",
+      header: "Due Date",
+      cell: ({ row }) => {
+        const rawDate = row.original.dueDate;
+
+        if (!rawDate) return null;
+
+        const date = rawDate instanceof Date ? rawDate : new Date(rawDate);
+
+        // กัน invalid date
+        if (isNaN(date.getTime())) return null;
+
+        const isExpired = Date.now() > date.getTime();
+
+        return (
+          <span className={isExpired ? "text-red-500" : ""}>
+            {format(date, "dd/MM/yyyy HH:mm")}
+          </span>
         );
       },
     },

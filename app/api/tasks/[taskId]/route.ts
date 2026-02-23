@@ -22,6 +22,7 @@ export async function PATCH(
     description?: string;
     assignUserEmail: string;
     status: TaskStatus;
+    dueDate: Date | undefined;
   } = await req.json();
 
   const assignUserId = data.assignUserEmail.trim()
@@ -41,6 +42,7 @@ export async function PATCH(
       category: data.category,
       assignUserId: assignUserId,
       status: data.status,
+      dueDate: data.dueDate,
     },
     include: {
       assignUser: {
