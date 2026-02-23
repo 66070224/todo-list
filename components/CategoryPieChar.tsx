@@ -64,9 +64,7 @@ export default function CategoryPieChart({
     fill: chartFill[category.status]?.color ?? "var(--chart-other)",
   }));
 
-  const totalVisitors = useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.count, 0);
-  }, []);
+  const totalVisitors = chartData.reduce((acc, curr) => acc + curr.count, 0);
 
   return (
     <Card className="flex flex-col">
