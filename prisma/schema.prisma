@@ -97,6 +97,8 @@ model Task {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  dueDate DateTime?
+
   user User @relation("CreatedBy", fields: [userId], references: [id])
 
   assignUser User? @relation("AssignedTo", fields: [assignUserId], references: [id])

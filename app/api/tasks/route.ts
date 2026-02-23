@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     category: TaskCategory;
     description?: string;
     assignUserEmail: string;
+    dueDate: Date | undefined;
   } = await req.json();
   const session = await auth();
   if (!session?.user?.id)
@@ -58,6 +59,7 @@ export async function POST(req: NextRequest) {
       description: data.description,
       category: data.category,
       assignUserId: assignUserId,
+      dueDate: data.dueDate,
     },
     include: {
       assignUser: {
