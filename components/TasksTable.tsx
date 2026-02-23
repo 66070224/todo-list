@@ -172,9 +172,7 @@ function TableCellViewer({
 
   async function deleteHandle() {
     setError("");
-    const origin = process.env.URL || "http://localhost:3000";
-    const URI = new URL(`/api/tasks/${item.id}`, origin);
-    const response = await fetch(URI, {
+    const response = await fetch(`/api/tasks/${item.id}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -190,9 +188,7 @@ function TableCellViewer({
 
   useEffect(() => {
     async function searchUserHandle() {
-      const origin = process.env.URL || "http://localhost:3000";
-      const URI = new URL("/api/users", origin);
-      const response = await fetch(URI, {
+      const response = await fetch("/api/users", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -338,9 +334,7 @@ function AddTaskViewer({
     setError("");
     if (!title.trim()) return setError("Please fill title field");
     if (!category) return setError("Please select category");
-    const origin = process.env.URL || "http://localhost:3000";
-    const URI = new URL("/api/tasks", origin);
-    const response = await fetch(URI, {
+    const response = await fetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -366,9 +360,7 @@ function AddTaskViewer({
 
   useEffect(() => {
     async function searchUserHandle() {
-      const origin = process.env.URL || "http://localhost:3000";
-      const URI = new URL("/api/users", origin);
-      const response = await fetch(URI, {
+      const response = await fetch("api/users", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

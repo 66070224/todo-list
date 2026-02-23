@@ -4,7 +4,6 @@ import { TaskCategory } from "@/app/generated/prisma/enums";
 import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 import { NextResponse, NextRequest } from "next/server";
-import { email } from "zod";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
