@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id)
     return NextResponse.json({ message: "Missing user's id" }, { status: 401 });
+
   const tasks = await prisma.task.findMany({
     where: {
       userId: session.user.id,
