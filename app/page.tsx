@@ -6,16 +6,16 @@ import SiteHeader from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { IconSubtask } from "@tabler/icons-react";
 import { LogInIcon } from "lucide-react";
+import Link from "next/link";
 
 export default async function HomePage() {
+  const session = await auth();
   return (
     <SidebarProvider
       style={
@@ -29,6 +29,11 @@ export default async function HomePage() {
       <SidebarInset>
         <SiteHeader header="Home" />
         <main className="flex flex-col p-5 gap-10 text-center">
+          {session && (
+            <h1 className="text-xl font-bold">
+              WELCOME, {session.user?.name} to
+            </h1>
+          )}
           <h1 className="text-5xl font-bold">TODO LIST</h1>
           <span className="text-center">
             Organize your life. Boost your productivity.
@@ -67,18 +72,29 @@ export default async function HomePage() {
 
           <div className="flex flex-col gap-5">
             <h3>Ready to get productive?</h3>
-            <form
-              className="flex items-center justify-center"
-              action={async () => {
-                "use server";
-                await signIn("google");
-              }}
-            >
-              <Button>
-                <LogInIcon />
-                Sign in now
-              </Button>
-            </form>
+            {session ? (
+              <div className="flex items-center justify-center gap-5">
+                <Button asChild>
+                  <Link href="/dashboard">Go to Dashboard</Link>
+                </Button>
+
+                <Button asChild>
+                  <Link href="/tasks">Go to Tasks</Link>
+                </Button>
+              </div>
+            ) : (
+              <form
+                action={async () => {
+                  "use server";
+                  await signIn("google");
+                }}
+              >
+                <Button>
+                  <LogInIcon />
+                  Sign in now
+                </Button>
+              </form>
+            )}
           </div>
         </main>
       </SidebarInset>

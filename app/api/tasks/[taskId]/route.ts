@@ -1,6 +1,6 @@
 "use server";
 
-import { TaskCategory } from "@/app/generated/prisma/enums";
+import { TaskCategory, TaskStatus } from "@/app/generated/prisma/enums";
 import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 import { NextRequest, NextResponse } from "next/server";
@@ -21,6 +21,7 @@ export async function PATCH(
     category: TaskCategory;
     description?: string;
     assignUserEmail: string;
+    status: TaskStatus;
   } = await req.json();
 
   const assignUserId = data.assignUserEmail.trim()
@@ -39,6 +40,7 @@ export async function PATCH(
       description: data.description,
       category: data.category,
       assignUserId: assignUserId,
+      status: data.status,
     },
     include: {
       assignUser: {
