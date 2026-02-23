@@ -16,9 +16,11 @@ export default function NavMain() {
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center gap-2">
-            <SidebarMenuButton tooltip="Dashboard">
-              <IconDashboard />
-              <span>Dashboard</span>
+            <SidebarMenuButton asChild tooltip="Dashboard">
+              <Link href="/dashboard">
+                <IconDashboard />
+                <span>Dashboard</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem className="flex items-center gap-2">
