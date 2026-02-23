@@ -4,11 +4,10 @@ import SiteHeader from "@/components/SiteHeader";
 import { TasksTable } from "@/components/TasksTable";
 import { prisma } from "@/prisma";
 import { auth } from "@/auth";
-import { NextResponse } from "next/server";
 
 export default async function TaskPage() {
   const session = await auth();
-  if (!session?.user?.id) return NextResponse.redirect("/");
+  if (!session?.user?.id) return;
   const data = await prisma.task.findMany({
     where: {
       OR: [{ userId: session.user.id }, { assignUserId: session.user.id }],
